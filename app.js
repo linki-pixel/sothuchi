@@ -53,7 +53,8 @@ function loadDB() {
           perks: { 'Mua sắm': 4, 'Siêu thị': 3 }
         }
       ],
-      banks: [...DEFAULT_BANKS]
+      banks: [...DEFAULT_BANKS],
+      initialized: true
     };
   }
   if (!data.banks || !Array.isArray(data.banks) || data.banks.length === 0) {
@@ -512,7 +513,21 @@ function filterAndRenderTable() {
 
   if (!txs.length) {
     tbody.innerHTML = '';
-    if (empty) empty.style.display = 'block';
+    if (empty) {
+      empty.style.display = 'block';
+      const emptyIcon = document.getElementById('tx-empty-icon');
+      const emptyMsg = document.getElementById('tx-empty-msg');
+      const addFirstBtn = document.getElementById('btn-add-first-table');
+      if (!db.transactions.length) {
+        if (emptyIcon) emptyIcon.textContent = '🌱';
+        if (emptyMsg) emptyMsg.textContent = 'Chưa có giao dịch nào. Bấm "+ Thêm giao dịch" để bắt đầu';
+        if (addFirstBtn) addFirstBtn.style.display = 'inline-block';
+      } else {
+        if (emptyIcon) emptyIcon.textContent = '🔍';
+        if (emptyMsg) emptyMsg.textContent = 'Không tìm thấy giao dịch phù hợp bộ lọc';
+        if (addFirstBtn) addFirstBtn.style.display = 'none';
+      }
+    }
     return;
   }
   if (empty) empty.style.display = 'none';
@@ -1364,6 +1379,33 @@ function executeDelete() {
 }
 
 // =========================================================
+// 15B. RESET / BẮT ĐẦU SỔ MỚI
+// =========================================================
+function openResetConfirmModal() {
+  const overlay = document.getElementById('reset-confirm-overlay');
+  if (overlay) {
+    overlay.classList.add('open');
+  } else {
+    // Fallback nếu không có modal
+    const confirmed = confirm('Hành động này sẽ xóa toàn bộ giao dịch để bạn bắt đầu ghi chép từ đầu. Bạn có chắc không?');
+    if (confirmed) executeResetData();
+  }
+}
+
+function closeResetConfirmModal() {
+  document.getElementById('reset-confirm-overlay')?.classList.remove('open');
+}
+
+function executeResetData() {
+  db.transactions = [];
+  db.initialized = true;
+  saveDB();
+  closeResetConfirmModal();
+  renderPage(currentPage);
+  showToast('Đã bắt đầu sổ mới, toàn bộ giao dịch đã được làm sạch.', 'info');
+}
+
+// =========================================================
 // 16. TOAST (Thông báo nổi tối ưu: nút ✕, giới hạn 3, 3 giây tự biến mất)
 // =========================================================
 function showToast(msg, type = 'info') {
@@ -1419,8 +1461,8 @@ function dismissToast(toastEl) {
 // =========================================================
 // 17. SEED DATA (for demo)
 // =========================================================
-function seedDemoData() {
-  if (db.transactions.length > 0) return; // already has data
+function seedDemoData(force = false) {
+  if (!force && (db.initialized || db.transactions.length > 0)) return; // already initialized or has data
   const today = new Date();
   const demos = [
     { type: 'income', amount: 20000000, date: offset(today, -25), desc: 'Lương tháng 9', category: 'salary', method: 'cash' },
@@ -1455,9 +1497,6 @@ function offset(date, days) {
 // 18. EVENT LISTENERS & INIT
 // =========================================================
 document.addEventListener('DOMContentLoaded', () => {
-
-  // Seed demo
-  seedDemoData();
 
   // Clock
   updateClock();
@@ -1560,6 +1599,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === e.currentTarget)
       document.getElementById('confirm-overlay')?.classList.remove('open');
   });
+
+  // Reset / Bắt đầu sổ mới
+  document.getElementById('btn-reset-data')?.addEventListener('click', openResetConfirmModal);
+  document.getElementById('btn-close-reset-confirm')?.addEventListener('click', closeResetConfirmModal);
+  document.getElementById('btn-cancel-reset-confirm')?.addEventListener('click', closeResetConfirmModal);
+  document.getElementById('btn-confirm-reset-execute')?.addEventListener('click', executeResetData);
+  document.getElementById('reset-confirm-overlay')?.addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeResetConfirmModal();
+  });
+  document.getElementById('btn-add-first-table')?.addEventListener('click', openAddModal);
 
   // Filters
   ['filter-type', 'filter-method', 'filter-category', 'filter-month', 'search-tx'].forEach(id => {

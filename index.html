@@ -52,6 +52,9 @@
         <button class="btn-menu" id="btn-menu" aria-label="Menu">☰</button>
         <div class="topbar-title" id="page-title">Tổng quan</div>
         <div class="topbar-actions">
+          <button class="btn-reset-data" id="btn-reset-data" title="Bắt đầu sổ mới (Xóa sạch dữ liệu cũ)">
+            <span class="btn-reset-icon">↺</span> Bắt đầu sổ mới <span class="btn-reset-desc">(Xóa sạch dữ liệu cũ)</span>
+          </button>
           <button class="btn-add-tx" id="btn-open-add" aria-label="Thêm giao dịch">
             <span>+</span> Thêm giao dịch
           </button>
@@ -191,8 +194,9 @@
             <tbody id="tx-tbody"></tbody>
           </table>
           <div class="empty-state" id="tx-empty" style="display:none">
-            <div class="empty-icon">🔍</div>
-            <p>Không tìm thấy giao dịch</p>
+            <div class="empty-icon" id="tx-empty-icon">🌱</div>
+            <p id="tx-empty-msg">Chưa có giao dịch nào. Bấm "+ Thêm giao dịch" để bắt đầu</p>
+            <button class="btn-add-first" id="btn-add-first-table">+ Thêm giao dịch</button>
           </div>
         </div>
       </section>
@@ -376,6 +380,23 @@
       <div class="modal-footer">
         <button class="btn-secondary" id="btn-cancel-confirm">Hủy</button>
         <button class="btn-danger" id="btn-confirm-delete">🗑 Xóa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset Data Confirm Modal -->
+  <div class="modal-overlay" id="reset-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title">
+    <div class="modal modal-sm glass-card">
+      <div class="modal-header">
+        <h2 id="reset-modal-title">Bắt đầu sổ mới</h2>
+        <button class="btn-close" id="btn-close-reset-confirm" aria-label="Đóng">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>Hành động này sẽ xóa toàn bộ giao dịch để bạn bắt đầu ghi chép từ đầu. Bạn có chắc không?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-cancel-reset-confirm">Hủy</button>
+        <button class="btn-danger" id="btn-confirm-reset-execute">Xác nhận xóa</button>
       </div>
     </div>
   </div>
