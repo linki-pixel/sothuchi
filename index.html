@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sổ Thu Chi – Quản Lý Tài Chính Cá Nhân</title>
+  <meta name="description" content="Ứng dụng sổ thu chi cá nhân thông minh – quản lý tiền mặt, thẻ tín dụng và cashback ưu đãi thẻ." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ====== APP SHELL ====== -->
+  <div class="app-shell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">💰</div>
+        <span class="logo-text">FinTrack</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-page="dashboard" id="nav-dashboard">
+          <span class="nav-icon">📊</span><span class="nav-label">Tổng quan</span>
+        </a>
+        <a href="#" class="nav-item" data-page="transactions" id="nav-transactions">
+          <span class="nav-icon">📋</span><span class="nav-label">Giao dịch</span>
+        </a>
+        <a href="#" class="nav-item" data-page="cards" id="nav-cards">
+          <span class="nav-icon">💳</span><span class="nav-label">Thẻ tín dụng</span>
+        </a>
+        <a href="#" class="nav-item" data-page="cashback" id="nav-cashback">
+          <span class="nav-icon">🎁</span><span class="nav-label">Cashback</span>
+        </a>
+        <a href="#" class="nav-item" data-page="report" id="nav-report">
+          <span class="nav-icon">📈</span><span class="nav-label">Báo cáo</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-time" id="sidebar-time"></div>
+        <div class="sidebar-date" id="sidebar-date"></div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Top Bar -->
+      <header class="topbar">
+        <button class="btn-menu" id="btn-menu" aria-label="Menu">☰</button>
+        <div class="topbar-title" id="page-title">Tổng quan</div>
+        <div class="topbar-actions">
+          <button class="btn-add-tx" id="btn-open-add" aria-label="Thêm giao dịch">
+            <span>+</span> Thêm giao dịch
+          </button>
+        </div>
+      </header>
+
+      <!-- ===== PAGES ===== -->
+
+      <!-- Dashboard Page -->
+      <section class="page active" id="page-dashboard">
+
+        <!-- Summary Cards – 3 cards, flat white -->
+        <div class="summary-grid">
+          <div class="summary-card">
+            <div class="card-label">Số dư hiện tại</div>
+            <div class="card-value" id="balance-display">0 ₫</div>
+            <div class="card-sub">Cập nhật tức thì</div>
+          </div>
+          <div class="summary-card">
+            <div class="card-label">Tổng thu</div>
+            <div class="card-value" id="income-display">0 ₫</div>
+            <div class="card-sub" id="income-count">0 khoản</div>
+          </div>
+          <div class="summary-card">
+            <div class="card-label">Tổng chi</div>
+            <div class="card-value" id="expense-display">0 ₫</div>
+            <div class="card-sub" id="expense-count">0 khoản</div>
+          </div>
+        </div>
+
+        <!-- Dashboard Body: Breakdown + Recent -->
+        <div class="dashboard-body">
+
+          <!-- Analytics & Donut & Accordion Categories -->
+          <div class="analytics-section">
+            <div class="section-header">
+              <h2>Biểu đồ &amp; Thống kê chi tiêu</h2>
+              <span class="section-meta" id="donut-total-label"></span>
+            </div>
+
+            <!-- Donut Chart on Left + Legend on Right -->
+            <div class="donut-analytics-container">
+              <div class="donut-chart-box">
+                <canvas id="donutChart" width="220" height="220"></canvas>
+              </div>
+              <div class="donut-legend-box" id="donut-legend-list">
+                <!-- Injected via JS: • Tên danh mục : XX.XX% -->
+              </div>
+            </div>
+
+            <!-- Below Chart: Category groups as flat collapsible cards -->
+            <div class="category-accordion-wrap">
+              <div class="accordion-section-title">Chi tiết nhóm danh mục</div>
+              <div class="category-accordion-list" id="category-accordion-list">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Transactions – flat list -->
+          <div class="recent-section">
+            <div class="section-header">
+              <h2>Giao dịch gần đây</h2>
+              <a href="#" class="link-all" data-page="transactions">Xem tất cả →</a>
+            </div>
+            <div class="recent-list" id="recent-list">
+              <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>Chưa có giao dịch nào</p>
+                <button class="btn-add-first" id="btn-add-first">+ Thêm giao dịch</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment breakdown -->
+        <div class="payment-breakdown">
+          <div class="section-header">
+            <h2>Phương thức thanh toán</h2>
+          </div>
+          <div class="payment-cards" id="payment-cards">
+            <div class="payment-card pay-cash">
+              <div class="pay-icon">💵</div>
+              <div class="pay-info">
+                <div class="pay-label">Tiền mặt</div>
+                <div class="pay-amount" id="cash-total">0 ₫</div>
+              </div>
+              <div class="pay-bar-wrap"><div class="pay-bar" id="cash-bar" style="width:0%"></div></div>
+            </div>
+            <div class="payment-card pay-card">
+              <div class="pay-icon">💳</div>
+              <div class="pay-info">
+                <div class="pay-label">Thẻ tín dụng</div>
+                <div class="pay-amount" id="credit-total">0 ₫</div>
+              </div>
+              <div class="pay-bar-wrap"><div class="pay-bar" id="credit-bar" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Transactions Page -->
+      <section class="page" id="page-transactions">
+        <div class="page-toolbar">
+          <div class="filter-group">
+            <select class="filter-select" id="filter-type">
+              <option value="all">Tất cả loại</option>
+              <option value="income">Thu</option>
+              <option value="expense">Chi</option>
+            </select>
+            <select class="filter-select" id="filter-method">
+              <option value="all">Tất cả phương thức</option>
+              <option value="cash">Tiền mặt</option>
+              <option value="credit">Thẻ tín dụng</option>
+            </select>
+            <select class="filter-select" id="filter-category">
+              <option value="all">Tất cả danh mục</option>
+            </select>
+            <input type="month" class="filter-select" id="filter-month" />
+          </div>
+          <div class="search-wrap">
+            <input type="search" class="search-input" id="search-tx" placeholder="🔍 Tìm kiếm..." />
+          </div>
+        </div>
+        <div class="transaction-table-wrap">
+          <table class="transaction-table" id="tx-table">
+            <thead>
+              <tr>
+                <th>Ngày</th>
+                <th>Mô tả</th>
+                <th title="Chỉnh sửa nhanh trực tiếp">Danh mục</th>
+                <th title="Chỉnh sửa nhanh trực tiếp">Phương thức</th>
+                <th class="text-right">Số tiền</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tx-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="tx-empty" style="display:none">
+            <div class="empty-icon">🔍</div>
+            <p>Không tìm thấy giao dịch</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cards Page -->
+      <section class="page" id="page-cards">
+        <div class="cards-grid" id="cards-grid"></div>
+        <div class="section-header" style="margin-top:2rem">
+          <h2>Thêm thẻ tín dụng</h2>
+        </div>
+        <div class="add-card-form glass-card">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tên thẻ</label>
+              <input type="text" id="new-card-name" class="form-control" placeholder="VD: Techcombank Visa" />
+            </div>
+            <div class="form-group">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.15rem;">
+                <label for="new-card-bank">Ngân hàng</label>
+                <button type="button" class="btn-manage-bank" id="btn-manage-banks" title="Quản lý danh sách ngân hàng">⚙ Quản lý</button>
+              </div>
+              <select class="form-control" id="new-card-bank"></select>
+              <div class="custom-bank-input-wrap" id="custom-bank-wrap" style="display:none; margin-top:0.45rem;">
+                <div style="display:flex; gap:0.4rem;">
+                  <input type="text" id="custom-bank-name" class="form-control" placeholder="Nhập tên ngân hàng mới..." />
+                  <button type="button" class="btn-primary btn-sm" id="btn-save-custom-bank" style="white-space:nowrap;">Lưu</button>
+                  <button type="button" class="btn-secondary btn-sm" id="btn-cancel-custom-bank" title="Hủy">✕</button>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>4 số cuối thẻ</label>
+              <input type="text" id="new-card-last4" class="form-control" maxlength="4" placeholder="0000" />
+            </div>
+            <div class="form-group">
+              <label>Màu thẻ</label>
+              <input type="color" id="new-card-color" class="form-control form-color" value="#6c63ff" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Cashback mặc định (%)</label>
+              <input type="number" id="new-card-cashback" class="form-control" min="0" max="100" step="0.1" value="1" />
+            </div>
+            <div class="form-group form-group-full">
+              <label>Ưu đãi theo danh mục (%)</label>
+              <div class="perks-builder" id="perks-builder"></div>
+              <button type="button" class="btn-secondary btn-sm" id="btn-add-perk" style="margin-top:.5rem">+ Thêm ưu đãi</button>
+            </div>
+          </div>
+          <button class="btn-primary" id="btn-add-card">+ Thêm thẻ</button>
+        </div>
+      </section>
+
+      <!-- Cashback Page -->
+      <section class="page" id="page-cashback">
+        <div class="cashback-hero glass-card">
+          <div class="cashback-hero-icon">🎁</div>
+          <div class="cashback-hero-info">
+            <div class="cashback-hero-label">Tổng cashback tích lũy</div>
+            <div class="cashback-hero-value" id="cb-total">0 ₫</div>
+          </div>
+        </div>
+        <div class="section-header" style="margin-top:1.5rem">
+          <h2>Cashback theo thẻ</h2>
+        </div>
+        <div class="cashback-by-card" id="cashback-by-card"></div>
+        <div class="section-header" style="margin-top:1.5rem">
+          <h2>Lịch sử cashback</h2>
+        </div>
+        <div class="cashback-table-wrap">
+          <div class="cashback-table-header">
+            <div class="cb-th cb-col-date">NGÀY</div>
+            <div class="cb-th cb-col-desc">NỘI DUNG GIAO DỊCH</div>
+            <div class="cb-th cb-col-amount">TIỀN HOÀN</div>
+          </div>
+          <div class="cashback-list" id="cashback-list"></div>
+        </div>
+      </section>
+
+      <!-- Report Page -->
+      <section class="page" id="page-report">
+        <div class="report-grid">
+          <div class="glass-card report-card">
+            <h3>Chi tiêu theo tháng</h3>
+            <canvas id="monthlyChart" width="400" height="200"></canvas>
+          </div>
+          <div class="glass-card report-card">
+            <h3>Chi tiêu theo danh mục</h3>
+            <canvas id="categoryChart" width="300" height="300"></canvas>
+          </div>
+          <div class="glass-card report-card report-stats">
+            <h3>Thống kê nhanh</h3>
+            <div id="report-stats-content"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ====== ADD TRANSACTION MODAL ====== -->
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal glass-card">
+      <div class="modal-header">
+        <h2 id="modal-title">Thêm giao dịch</h2>
+        <button class="btn-close" id="btn-close-modal" aria-label="Đóng">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="type-tabs">
+          <button class="type-tab active" id="tab-expense" data-type="expense">💸 Chi tiêu</button>
+          <button class="type-tab" id="tab-income" data-type="income">💰 Thu nhập</button>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="tx-amount">Số tiền (₫) *</label>
+            <input type="number" id="tx-amount" class="form-control" placeholder="0" min="0" required />
+          </div>
+          <div class="form-group">
+            <label for="tx-date">Ngày *</label>
+            <input type="date" id="tx-date" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label for="tx-desc">Mô tả</label>
+            <input type="text" id="tx-desc" class="form-control" placeholder="Mô tả giao dịch..." />
+          </div>
+          <div class="form-group">
+            <label for="tx-category">Danh mục *</label>
+            <select id="tx-category" class="form-control"></select>
+          </div>
+          <div class="form-group form-group-full">
+            <label>Phương thức thanh toán *</label>
+            <div class="payment-method-tabs">
+              <button type="button" class="method-tab active" data-method="cash" id="method-cash">
+                <span>💵</span> Tiền mặt
+              </button>
+              <button type="button" class="method-tab" data-method="credit" id="method-credit">
+                <span>💳</span> Thẻ tín dụng
+              </button>
+            </div>
+          </div>
+          <div class="form-group form-group-full" id="credit-card-group" style="display:none">
+            <label for="tx-card">Chọn thẻ</label>
+            <select id="tx-card" class="form-control"></select>
+          </div>
+          <div class="cashback-preview" id="cashback-preview" style="display:none">
+            <div class="cashback-preview-icon">🎁</div>
+            <div class="cashback-preview-info">
+              <div class="cashback-preview-label">Cashback ước tính</div>
+              <div class="cashback-preview-amount" id="cashback-preview-amount">0 ₫</div>
+            </div>
+            <div class="cashback-preview-pct" id="cashback-preview-pct">0%</div>
+          </div>
+          <div class="form-group">
+            <label for="tx-note">Ghi chú</label>
+            <input type="text" id="tx-note" class="form-control" placeholder="Ghi chú thêm..." />
+          </div>
+          <div class="form-group">
+            <label for="tx-cashback-override">Cashback thực tế (₫) <small>để trống = tự tính</small></label>
+            <input type="number" id="tx-cashback-override" class="form-control" placeholder="Tự động" min="0" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-cancel-modal">Hủy</button>
+        <button class="btn-primary" id="btn-save-tx">💾 Lưu giao dịch</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete confirm -->
+  <div class="modal-overlay" id="confirm-overlay">
+    <div class="modal modal-sm glass-card">
+      <div class="modal-header">
+        <h2>Xác nhận xóa</h2>
+        <button class="btn-close" id="btn-close-confirm">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>Bạn có chắc muốn xóa giao dịch này không?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-cancel-confirm">Hủy</button>
+        <button class="btn-danger" id="btn-confirm-delete">🗑 Xóa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bank Management Modal -->
+  <div class="modal-overlay" id="bank-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="bank-modal-title">
+    <div class="modal modal-sm glass-card">
+      <div class="modal-header">
+        <h2 id="bank-modal-title">Quản lý ngân hàng</h2>
+        <button class="btn-close" id="btn-close-bank-modal" aria-label="Đóng">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:1.25rem;">
+          <label style="font-size:14px; font-weight:600; color:#000000; display:block; margin-bottom:0.4rem;">Thêm ngân hàng mới</label>
+          <div style="display:flex; gap:0.45rem;">
+            <input type="text" id="quick-add-bank-input" class="form-control" placeholder="Tên ngân hàng..." />
+            <button type="button" class="btn-primary btn-sm" id="btn-quick-add-bank" style="white-space:nowrap;">+ Thêm</button>
+          </div>
+        </div>
+        <label style="font-size:14px; font-weight:600; color:#000000; display:block; margin-bottom:0.4rem;">Danh sách ngân hàng hiện có</label>
+        <div class="bank-manage-list" id="bank-manage-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-primary" id="btn-done-bank-modal">Xong</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
